@@ -39,6 +39,6 @@ for MODULE_XML_PATH in `find $JBOSS_MODULES_DIRECTORY | grep module.xml`; do
 done
 
 echo "}" >> all.dot
-echo "Generating PNG for all dependencies, it may take awhile."
+echo "Generating PNG for all dependencies, it may take some time."
 dot -Tpng all.dot > all.png
 

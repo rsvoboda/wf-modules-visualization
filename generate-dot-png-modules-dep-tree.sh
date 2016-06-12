@@ -12,6 +12,7 @@ if [ $# -ne 1 ]; then
 fi
 
 type dot >/dev/null 2>&1 || { echo >&2 "I require dot from Graphviz but it's not installed.  Aborting."; exit 1; }
+type xmlstarlet >/dev/null 2>&1 || { echo >&2 "I require xmlstarlet but it's not installed.  Aborting."; exit 1; }
 
 JBOSS_MODULES_DIRECTORY=$1
 
@@ -22,8 +23,8 @@ for MODULE_XML_PATH in `find $JBOSS_MODULES_DIRECTORY | grep module.xml`; do
    echo "Processing $MODULE_XML_PATH"
 
    NAMESPACE=`grep "xmlns=" $MODULE_XML_PATH | sed "s/.*xmlns=\"\(.*1\..\).*/\1/"`  ## e.g. urn:jboss:module:1.3
-   MODULE_NAME=$(echo -e "setns p=$NAMESPACE\nxpath /p:module/@name" | xmllint --shell $MODULE_XML_PATH | grep "=" | cut -f 2 -d "=")
-   DEPENDENCIES=$(echo -e "setns p=$NAMESPACE\nxpath /p:module/p:dependencies/p:module/@name" | xmllint --shell $MODULE_XML_PATH | grep "=" | cut -f 2 -d "=")
+   MODULE_NAME=$(xmlstarlet sel -N p=$NAMESPACE -t -v /p:module/@name $MODULE_XML_PATH)
+   DEPENDENCIES=$(xmlstarlet sel -N p=$NAMESPACE -t -v /p:module/p:dependencies/p:module/@name $MODULE_XML_PATH)
 
    if [ -z "$DEPENDENCIES" ]; then
       echo "   Skipping as dependencies are empty"
